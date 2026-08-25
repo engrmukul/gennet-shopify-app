@@ -1,0 +1,67 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+name = "Gennet SMS"
+client_id = "REPLACE_WITH_YOUR_PARTNER_APP_CLIENT_ID"
+application_url = "https://REPLACE_WITH_YOUR_APP_URL"
+embedded = true
+
+[access_scopes]
+# Minimum scope required: read order data to send order-event SMS
+# notifications. No write scopes are requested; the app never modifies
+# orders, products, or customers.
+scopes = "read_orders"
+
+[auth]
+redirect_urls = [
+  "https://REPLACE_WITH_YOUR_APP_URL/auth/callback",
+  "https://REPLACE_WITH_YOUR_APP_URL/auth/shopify/callback",
+  "https://REPLACE_WITH_YOUR_APP_URL/api/auth/callback"
+]
+
+[webhooks]
+api_version = "2026-07"
+
+  # Order lifecycle events used for automatic SMS notifications.
+  [[webhooks.subscriptions]]
+  topics = ["orders/create"]
+  uri = "/webhooks/orders/create"
+
+  [[webhooks.subscriptions]]
+  topics = ["orders/paid"]
+  uri = "/webhooks/orders/paid"
+
+  [[webhooks.subscriptions]]
+  topics = ["orders/fulfilled"]
+  uri = "/webhooks/orders/fulfilled"
+
+  [[webhooks.subscriptions]]
+  topics = ["orders/cancelled"]
+  uri = "/webhooks/orders/cancelled"
+
+  [[webhooks.subscriptions]]
+  topics = ["refunds/create"]
+  uri = "/webhooks/refunds/create"
+
+  # Installation lifecycle.
+  [[webhooks.subscriptions]]
+  topics = ["app/uninstalled"]
+  uri = "/webhooks/app/uninstalled"
+
+  # Mandatory Shopify privacy/compliance webhooks. Required for App Store
+  # distribution; must be implemented with real export/delete behavior,
+  # not stub 200 responses.
+  [[webhooks.subscriptions]]
+  compliance_topics = ["customers/data_request"]
+  uri = "/webhooks/customers/data_request"
+
+  [[webhooks.subscriptions]]
+  compliance_topics = ["customers/redact"]
+  uri = "/webhooks/customers/redact"
+
+  [[webhooks.subscriptions]]
+  compliance_topics = ["shop/redact"]
+  uri = "/webhooks/shop/redact"
+
+[build]
+automatically_update_urls_on_dev = true
+include_config_on_deploy = true

@@ -1,0 +1,169 @@
+// Gennet SMS — Prisma schema
+//
+// Every application table (everything except `Session`, which is Shopify's
+// own session-storage shape) carries a `shopId` foreign key so every query
+// can be scoped to the authenticated shop. Never query these tables without
+// a shop filter — see app/models/*.server.ts for the enforced accessors.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Required shape for @shopify/shopify-app-session-storage-prisma.
+model Session {
+  id            String    @id
+  shop          String
+  state         String
+  isOnline      Boolean   @default(false)
+  scope         String?
+  expires       DateTime?
+  accessToken   String
+  userId        BigInt?
+  firstName     String?
+  lastName      String?
+  email         String?
+  accountOwner  Boolean   @default(false)
+  locale        String?
+  collaborator  Boolean?  @default(false)
+  emailVerified Boolean?  @default(false)
+}
+
+model Shop {
+  id            String    @id @default(cuid())
+  shopDomain    String    @unique
+  installedAt   DateTime  @default(now())
+  uninstalledAt DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  settings          SmsSettings?
+  templates         SmsTemplate[]
+  notificationRules NotificationRule[]
+  events            SmsEvent[]
+  logs              SmsLog[]
+}
+
+model SmsSettings {
+  id                String   @id @default(cuid())
+  shopId            String   @unique
+  shop              Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  enabled           Boolean  @default(false)
+  // AES-256-GCM ciphertext (iv:authTag:ciphertext, base64). Never plaintext.
+  apiTokenEncrypted String?
+  // Last 4 characters of the token, for merchant confirmation only —
+  // never enough to reconstruct or use the token.
+  apiTokenLast4     String?
+  defaultSenderId   String?
+  apiBaseUrl        String   @default("https://isms.gennet.com.bd")
+  requestTimeoutMs  Int      @default(10000)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+enum NotificationEvent {
+  ORDER_CREATED
+  ORDER_PAID
+  ORDER_FULFILLED
+  ORDER_CANCELLED
+  ORDER_REFUNDED
+}
+
+model SmsTemplate {
+  id        String            @id @default(cuid())
+  shopId    String
+  shop      Shop              @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  event     NotificationEvent
+  body      String
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  @@unique([shopId, event])
+}
+
+model NotificationRule {
+  id                String            @id @default(cuid())
+  shopId            String
+  shop              Shop              @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  event             NotificationEvent
+  enabled           Boolean           @default(false)
+  templateId        String?
+  senderIdOverride  String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  @@unique([shopId, event])
+}
+
+enum SmsEventStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+// Deterministic dedupe ledger. A row is inserted (unique constraint) BEFORE
+// the Gennet API is called; a duplicate Shopify webhook delivery collides on
+// the unique constraint and is dropped without sending SMS again.
+model SmsEvent {
+  id        String            @id @default(cuid())
+  shopId    String
+  shop      Shop              @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  topic     String
+  webhookId String?
+  orderId   String
+  subtype   String            @default("")
+  status    SmsEventStatus    @default(PENDING)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  @@unique([shopId, topic, orderId, subtype])
+}
+
+enum SmsLogStatus {
+  SENT
+  FAILED
+}
+
+model SmsLog {
+  id              String       @id @default(cuid())
+  shopId          String
+  shop            Shop         @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  event           String
+  orderId         String?
+  topic           String?
+  recipientMasked String
+  senderId        String
+  csmsId          String
+  status          SmsLogStatus
+  apiStatusCode   Int?
+  apiMeaning      String?
+  errorCategory   String?
+  createdAt       DateTime     @default(now())
+
+  @@index([shopId, createdAt])
+  @@index([shopId, orderId])
+}
+
+enum ComplianceRequestType {
+  CUSTOMER_DATA_REQUEST
+  CUSTOMER_REDACT
+  SHOP_REDACT
+}
+
+// Audit trail proving each mandatory privacy webhook was actually
+// processed (not stub-200'd). No raw customer PII is stored here — only
+// counts/order-id references — since the app's own data is already
+// minimized to masked phone numbers and order identifiers.
+model ComplianceRequestLog {
+  id           String                @id @default(cuid())
+  shopDomain   String
+  type         ComplianceRequestType
+  summary      String
+  processedAt  DateTime              @default(now())
+
+  @@index([shopDomain, processedAt])
+}

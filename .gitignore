@@ -1,0 +1,12 @@
+node_modules/
+build/
+.cache/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+.shopify/
+prisma/dev.db
+prisma/dev.db-journal
+coverage/
