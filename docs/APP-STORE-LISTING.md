@@ -1,11 +1,32 @@
 # Draft App Store Listing
 
 Draft copy only — not published. Requires the URLs/details in
-APP-STORE-CHECKLIST.md before it can go live.
+APP-STORE-CHECKLIST.md before it can go live. See
+docs/REVIEWER-INSTRUCTIONS.md for the separate reviewer-facing submission
+text.
 
 ## App name
 
 Gennet SMS
+
+## App card subtitle (≤ 60 chars, per listing guideline 4.4.1)
+
+Automatic order SMS via Gennet
+
+## Category
+
+Regular app (not Sales Channel, Payment, Purchase Option, Online Store
+theme extension, Post Purchase, Donation, or Blockchain) — file under
+**Store management → Customer communication** or the closest equivalent
+category available in the Partner Dashboard at submission time.
+
+## Suggested tags / keywords
+
+SMS, order notifications, transactional messaging, Bangladesh, Gennet,
+customer notifications, order updates, text message alerts
+
+(Per guideline 4.3.5, only use tags that accurately describe actual
+functionality — do not add tags for features this app doesn't have.)
 
 ## Short description (≤ 100 chars)
 
@@ -60,10 +81,51 @@ directly.
 5. Test with **Send SMS**, then place a test order to confirm automatic
    notifications work end-to-end.
 
+## Listing images (per guidelines 4.4.3–4.4.5, enforced March 26, 2026)
+
+Not yet captured — none of these exist in this repository; they must be
+screenshotted from a real embedded-admin session against a linked Partner
+app + dev store (not available in this build environment).
+
+- **Icon**: square, no Shopify trademarks/branding in it.
+- **Screenshots**: 3–6 images, 1600×900px (16:9), desktop. Must show the
+  actual app UI only — no browser chrome, no desktop background, no
+  logo-only slides. Each image must be distinct (different feature/view),
+  e.g.:
+  1. Dashboard (integration status)
+  2. Settings (Gennet configuration)
+  3. Order Notifications (per-event toggles)
+  4. Templates (whitelist variable editor)
+  5. Send SMS (manual send form)
+  6. Logs (send history)
+- **Demo screencast**: short video of onboarding (install → Settings →
+  enable a notification → Send SMS) narrated or subtitled in English, per
+  guideline 4.5.3. Also not yet recorded.
+
 ## Pricing
 
 Free app. Requires an active Gennet SMS account; Gennet's own per-message
 SMS rates apply and are billed by Gennet, not through this app.
+
+Per guideline 4.2: pricing is stated only here and in the Partner
+Dashboard's pricing field — it must **not** appear inside any screenshot or
+elsewhere in the listing copy.
+
+## Geographic / language scope (guideline 4.3.2, 4.3.8)
+
+- UI language: English only. Do not claim support for other languages
+  unless the UI is actually translated.
+- No geographic restriction on which merchants can install the app, but
+  the phone-normalization convenience logic
+  (`app/lib/phone.server.ts`) is Bangladesh-aware specifically because
+  Gennet's primary market is Bangladesh — state this in the description so
+  merchants outside BD understand numbers are still accepted, just not
+  auto-formatted.
+
+## Online Store sales channel requirement (guideline 4.3.1)
+
+Not required. This app has zero storefront footprint (no ScriptTags, no
+theme app extensions) — state this explicitly in the listing.
 
 ## Support
 

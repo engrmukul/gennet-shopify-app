@@ -133,3 +133,4 @@ See [DEPLOYMENT.md](./DEPLOYMENT.md).
 - [PRIVACY-DATA-FLOW.md](./PRIVACY-DATA-FLOW.md) — what data is collected, why, and how it's deleted
 - [APP-STORE-CHECKLIST.md](./APP-STORE-CHECKLIST.md) — Shopify App Store readiness
 - [docs/APP-STORE-LISTING.md](./docs/APP-STORE-LISTING.md) — draft store listing copy
+- [docs/REVIEWER-INSTRUCTIONS.md](./docs/REVIEWER-INSTRUCTIONS.md) — submission text for the Shopify review team
