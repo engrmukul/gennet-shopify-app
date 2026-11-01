@@ -42,9 +42,9 @@
     "eslint": "^8.57.0",
     "prisma": "^6.19.3",
     "typescript": "^5.6.3",
-    "vite": "^5.4.11",
+    "vite": "^8.3.5",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^2.1.9"
+    "vitest": "^5.0.5"
   },
   "allowScripts": {
     "@prisma/client@6.19.3": true,
